@@ -1,0 +1,8 @@
+﻿################################################################################
+# Este archivo .gitignore ha sido creado automáticamente por Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/slnx.sqlite
+/.vs/videoHTML5/v15/.suo
+/.vs/videoHTML5/v15/.suo
+*.suo
