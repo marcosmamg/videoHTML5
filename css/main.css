@@ -82,7 +82,7 @@ word-break: break-word;
 }
 
 button {
-background-color: #d84a38;
+background-color: black;
 border: none;
 border-radius: 2px;
 color: white;
@@ -129,12 +129,16 @@ div#links {
   padding: 0.5em 0 0 0;
 }
 
+div#settingsContainer{
+  float: right;
+}
 h1 {
 border-bottom: 1px solid #ccc;
 font-family: 'Roboto', sans-serif;
 font-weight: 500;
 margin: 0 0 0.8em 0;
 padding: 0 0 0.2em 0;
+text-align: center;
 }
 
 h2 {

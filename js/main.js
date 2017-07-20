@@ -152,3 +152,13 @@ function download() {
     window.URL.revokeObjectURL(url);
   }, 100);
 }
+
+function showDialog() {  
+    var dialog = document.getElementById('settingsForm');  
+    document.getElementById('settings').onclick = function() {  
+        dialog.showModal();  
+    };  
+    document.getElementById('exit').onclick = function() {  
+        dialog.close();  
+    };  
+}
