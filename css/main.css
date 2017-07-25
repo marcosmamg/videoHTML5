@@ -93,19 +93,19 @@ padding: 0.5em 0.7em 0.6em 0.7em;
 }
 
 button:active {
-background-color: #cf402f;
+background-color: red;
 }
 
-button:hover {
+/*button:hover {
 background-color: #cf402f;
 }
 
 button[disabled] {
-color: #ccc;
-}
+color: black;
+}*/
 
-button[disabled]:hover {
-background-color: #d84a38;
+button:enabled:hover {
+background-color: red;
 }
 
 canvas {
@@ -132,6 +132,12 @@ div#links {
 div#settingsContainer{
   float: right;
 }
+
+#recorded{
+  display: none;
+}
+
+
 h1 {
 border-bottom: 1px solid #ccc;
 font-family: 'Roboto', sans-serif;
