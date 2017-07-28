@@ -26,65 +26,62 @@
   <link href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet" type="text/css">  
   <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
 
 </head>
 
-<body>
+<body ng-app="fabSpeedDialDemoBasicUsage" ng-cloak>
+<div class='md-padding' layout="row" flex>
+        <div layout="row" layout-xs="column" flex> <!-- define layout here -->
+            <div class="parent" layout="column" flex>
+                <md-card>
+                    <div class="container">
+                      <h1>Video feature for SmartForms</h1>    
+                      <div id = "video_overlays" >
+                        <img class = "container" src="images/play.png" onclick="hide();">
+                        <h2>Press the button to start/stop recording</h2>
+                      </div>                      
+                      <video id="gum" autoplay muted></video>                              
+                      <video controls id="recorded" autoplay loop class = "previewContainer hidden"></video>
+                      <div ng-controller="DemoCtrl as demo" layout="column" ng-cloak>
+                        <md-content class="md-padding" layout="column">    
+                          <div class="lock-size" layout="row" layout-align="end start">
+                            <md-fab-speed-dial md-open="demo.isOpen" md-direction="{{demo.selectedDirection}}"
+                                               ng-class="demo.selectedMode">
+                              <md-fab-trigger>
+                                <md-button aria-label="menu" class="md-fab md-warn">
+                                  <md-icon md-font-icon="fa-bars" class="fa" aria-label="Menu"></md-icon>
+                                </md-button>
+                              </md-fab-trigger>
 
-  <div id="container">
-
-    <h1>Video feature for SmartForms</h1>
-    <div id = "settingsContainer">
-      <button id ="settings" onclick="showDialog(true)"><i class="fa fa-cog"></i></button>
-    </div>
-    <video id="gum" autoplay muted></video>
-    <video id="recorded" autoplay></video>
-
-    <div id= "toolbarContainer">            
-      <button id="record" name = 'recording'><i class="fa fa-video-camera"></i></button>
-      <button id="play" onclick="showDialog(true)" disabled><i class="fa fa-play"></i></button>
-      <button id="download" disabled class="btn btn-block btn-primary"><i class="fa fa-download"></i></button>      
-    </div>
-  </div>
-
-  <div>
-    <dialog id = 'preview'>
-      <video id="recorded" autoplay></video>
-      <button id="exitPreview" onclick="showPreview(true)">Close</button>  
-    </dialog>
-  </div>
-
-  <div>
-      <dialog id="settingsForm">  
-        <div id="container">
-          <div class="highlight">
-            <p>Setup your devices</a></p>
+                              <md-fab-actions>
+                                <md-button aria-label="Settings" class="md-fab md-raised md-mini">
+                                  <md-icon md-font-icon="fa-cog" class="fa" aria-label="Settings"></md-icon>
+                                </md-button>          
+                                <md-button aria-label="Download" class="md-fab md-raised md-mini">
+                                  <md-icon md-font-icon="fa-cloud-download" class="fa"" aria-label="Download" onclick="download();"></md-icon>
+                                </md-button>
+                              </md-fab-actions>
+                            </md-fab-speed-dial>
+                          </div>
+                        </md-content>
+                      </div>  
+                  </div> 
+              </md-card>
           </div>
+      </div>
+</div>   
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
 
-          <div class="select">
-            <label for="audioSource">Audio input source: </label><select id="audioSource"></select>
-          </div>
-
-          <div class="select">
-            <label for="audioOutput">Audio output destination: </label><select id="audioOutput"></select>
-          </div>
-
-          <div class="select">
-            <label for="videoSource">Video source: </label><select id="videoSource"></select>
-          </div>
-
-          <video id="video" autoplay></video>
-
-          <p class="small"><b>Note:</b> If you hear a reverb sound your microphone is picking up the output of your speakers/headset, lower the volume and/or move the microphone further away from your speakers/headset.</p>        
-        </div>
-        <button id="exit" onclick="showDialog(false)">Close</button>  
-      </dialog>  
-  </div>
-
+  <!-- Angular Material Library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
   <!-- include adapter for srcObject shim -->
-  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  <script src="js/adapter-latest.js"></script>
   <script src="js/main.js"></script>
-  <script src="js/ga.js"></script>
+  <!-- <script src="js/ga.js"></script> -->
 
 </body>
 </html>
