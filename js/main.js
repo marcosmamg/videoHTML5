@@ -1,21 +1,4 @@
-/*
-*  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
-*
-*  Use of this source code is governed by a BSD-style license
-*  that can be found in the LICENSE file in the root of the source
-*  tree.
-*/
-
-// This code is adapted from
-// https://rawgit.com/Miguelao/demos/master/mediarecorder.html
-
 'use strict';
-
-var videoElement = document.querySelector('video#video');
-var audioInputSelect = document.querySelector('select#audioSource');
-var audioOutputSelect = document.querySelector('select#audioOutput');
-var videoSelect = document.querySelector('select#videoSource');
-var selectors = [audioInputSelect, audioOutputSelect, videoSelect];
 
 /* globals MediaRecorder */
 
@@ -24,16 +7,18 @@ mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
 var mediaRecorder;
 var recordedBlobs;
 var sourceBuffer;
+var recording = false;
+
+var videoElement = document.querySelector('#videoSetup');
+var audioInputSelect = document.querySelector('select#audioSource');
+var audioOutputSelect = document.querySelector('select#audioOutput');
+var videoSelect = document.querySelector('select#videoSource');
+var selectors = [audioInputSelect, audioOutputSelect, videoSelect];
 
 var gumVideo = document.querySelector('video#gum');
 var recordedVideo = document.querySelector('video#recorded');
 
-var recordButton = document.querySelector('button#record');
-var playButton = document.querySelector('button#play');
-var downloadButton = document.querySelector('button#download');
-recordButton.onclick = toggleRecording;
-playButton.onclick = play;
-downloadButton.onclick = download;
+gumVideo.onclick = toggleRecording;
 
 // window.isSecureContext could be used for Chrome
 var isSecureOrigin = true; //location.protocol === 'https:' ||
@@ -49,8 +34,17 @@ var constraints = {
   video: true
 };
 
-function handleSuccess(stream) {
-  recordButton.disabled = false;
+(function() { 
+
+  angular.module('fabButton', ['ngMaterial'])
+    .controller('fabCtrl', function() {      
+      this.isOpen = false;      
+      this.selectedMode = 'md-fling';      
+      this.selectedDirection = 'down';
+    });
+})();
+
+function handleSuccess(stream) {  
   console.log('getUserMedia() got stream: ', stream);
   window.stream = stream;
   if (window.URL) {
@@ -90,17 +84,13 @@ function handleStop(event) {
 }
 
 function toggleRecording() {
-  if (recordButton.name === 'recording') {
+  if (!recording) {    
+    recording = true;   
+    recordedVideo.pause();
     startRecording();
-    document.getElementById("record").style.color = "red";
-    playButton.disabled = true;
-    downloadButton.disabled = true;
   } else {
-    stopRecording();
-    recordButton.name = 'recording';
-    document.getElementById("record").style.color = "white";
-    playButton.disabled = false;
-    downloadButton.disabled = false;
+    recording = false;   
+    stopRecording();     
   }
 }
 
@@ -128,9 +118,6 @@ function startRecording() {
     return;
   }
   console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-  recordButton.name = 'stopRecording';  
-  playButton.disabled = true;
-  downloadButton.disabled = true;
   mediaRecorder.onstop = handleStop;
   mediaRecorder.ondataavailable = handleDataAvailable;
   mediaRecorder.start(10); // collect 10ms of data
@@ -139,8 +126,12 @@ function startRecording() {
 
 function stopRecording() {
   mediaRecorder.stop();
+  document.getElementById("recorded").style.display = 'block';
+  play();
   console.log('Recorded Blobs: ', recordedBlobs);
   recordedVideo.controls = true;
+  document.getElementById("video_overlays").style.display = "block";
+  
 }
 
 function play() {
@@ -163,17 +154,25 @@ function download() {
   }, 100);
 }
 
+function hide(){
+  var overlay = document.getElementById("video_overlays")
+  document.getElementById("video_overlays").style.display = "none";
+  toggleRecording();
+}
+
+
 function showDialog(isVisible) {  
     var dialog = document.getElementById('settingsForm');  
-    isVisible === true ? dialog.showModal() : dialog.close(); 
+    if (isVisible){
+      dialog.showModal();
+      videoElement.muted = false;
+      navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
+      start();
+    } else{
+      videoElement.muted = true;
+      dialog.close(); 
+    };
 }
-
-function showDialog(isVisible) {  
-    var dialog = document.getElementById('preview');  
-    isVisible === true ? dialog.showModal() : dialog.close(); 
-}
-
-
 
 function gotDevices(deviceInfos) {
   // Handles being called several times to update labels. Preserve values.
@@ -213,8 +212,6 @@ function gotDevices(deviceInfos) {
   });
 }
 
-navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
-
 // Attach audio output device to video element using device/sink ID.
 function attachSinkId(element, sinkId) {
   if (typeof element.sinkId !== 'undefined') {
@@ -250,11 +247,11 @@ function gotStream(stream) {
 }
 
 function start() {
-  if (window.stream) {
-    window.stream.getTracks().forEach(function(track) {
-      track.stop();
-    });
-  }
+  // if (window.stream) {
+  //   window.stream.getTracks().forEach(function(track) {
+  //     track.stop();
+  //   });
+  // }
   var audioSource = audioInputSelect.value;
   var videoSource = videoSelect.value;
   var constraints = {
@@ -268,8 +265,6 @@ function start() {
 audioInputSelect.onchange = start;
 audioOutputSelect.onchange = changeAudioDestination;
 videoSelect.onchange = start;
-
-start();
 
 function handleError(error) {
   console.log('navigator.getUserMedia error: ', error);
