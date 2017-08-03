@@ -71,7 +71,7 @@ video {
 
 .container {
     margin: 0 auto 0 auto;
-    max-width: 40em;
+    max-width: 40em; 
     padding: 1em 1.5em 1.3em 1.5em;
     position: relative;
     text-align: justify;
