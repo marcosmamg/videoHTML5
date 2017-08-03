@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!--
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
@@ -9,103 +9,107 @@
 <html>
 <head>
 
-  <meta charset="utf-8">
-  <meta name="description" content="Video feature for SmarthForms">
-  <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1">
-  <meta itemprop="description" content="Client-side WebRTC code samples">
-  <meta itemprop="image" content="images/webrtc-icon-192x192.png">
-  <meta itemprop="name" content="Video feature for SmarthForms">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta id="theme-color" name="theme-color" content="#ffffff">
+    <meta charset="utf-8">
+    <meta name="description" content="Video feature for SmarthForms">
+    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1">
+    <meta itemprop="description" content="Client-side WebRTC code samples">
+    <meta itemprop="image" content="images/webrtc-icon-192x192.png">
+    <meta itemprop="name" content="Video feature for SmarthForms">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta id="theme-color" name="theme-color" content="#ffffff">
 
-  <base target="_blank">
+    <base target="_blank">
 
-  <title>Video feature for SmartForms</title>
+    <title>Video feature for SmartForms</title>
 
-  <link rel="icon" sizes="192x192" href="images/webrtc-icon-192x192.png">
-  <link href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet" type="text/css">  
-  <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+    <link rel="icon" sizes="192x192" href="images/webrtc-icon-192x192.png">
+    <link href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
 
 </head>
 
 <body ng-app="fabButton" ng-cloak>
-<div class='md-padding' layout="row" flex>
-        <div layout="row" layout-xs="column" flex> <!-- define layout here -->
+    <div class='md-padding' layout="row" flex>
+        <div layout="row" layout-xs="column" flex>
+            <!-- define layout here -->
             <div class="parent" layout="column" flex>
                 <md-card>
                     <div class="container">
-                      <h1>Video feature for SmartForms</h1>    
-                      <div id = "video_overlays" onclick="hide();">
-                        <h2>Press the screen to start/stop recording</h2>
-                        <img src="images/record.png">                        
-                      </div>                      
-                      <video id="gum" autoplay muted></video>                              
-                      <video controls id="recorded" autoplay loop class = "previewContainer hidden"></video>
-                      <div ng-controller="fabCtrl as demo" layout="column" ng-cloak>
-                        <md-content class="md-padding" layout="column">    
-                          <div class="lock-size" layout="row" layout-align="end start">
-                            <md-fab-speed-dial md-open="demo.isOpen" md-direction="{{demo.selectedDirection}}"
-                                               ng-class="demo.selectedMode">
-                              <md-fab-trigger>
-                                <md-button aria-label="menu" class="md-fab md-warn">
-                                  <md-icon md-font-icon="fa-bars" class="fa" aria-label="Menu"></md-icon>
-                                </md-button>
-                              </md-fab-trigger>
+                        <h1>Video feature for SmartForms</h1>
+                        <div class="video_wrapper">
+                            <div id="video_overlays" onclick="hide();">
+                                <h2>Press the screen to start/stop recording</h2>
+                                <img src="images/record.png">
+                            </div>
+                            <video id="gum" autoplay muted></video>
+                        </div>
 
-                              <md-fab-actions>
-                                <md-button aria-label="Settings" class="md-fab md-raised md-mini">
-                                  <md-icon md-font-icon="fa-cog" class="fa" aria-label="Settings" onclick = "showDialog(true);"></md-icon>
-                                </md-button>          
-                                <md-button aria-label="Download" class="md-fab md-raised md-mini">
-                                  <md-icon md-font-icon="fa-cloud-download" class="fa"" aria-label="Download" onclick="download();"></md-icon>
-                                </md-button>
-                              </md-fab-actions>
-                            </md-fab-speed-dial>
-                          </div>
-                        </md-content>
-                      </div>  
-                  </div> 
-              </md-card>
-          </div>
-      </div>
-  <div>
-      <dialog id="settingsForm">  
-        <div class="container">          
-          <h1>Setup your devices</h1>          
+                        <video controls id="recorded" autoplay loop class="previewContainer hidden"></video>
+                        <div ng-controller="fabCtrl as demo" layout="column" ng-cloak>
+                            <md-content class="md-padding" layout="column">
+                                <div class="lock-size" layout="row" layout-align="end start">
+                                    <md-fab-speed-dial md-open="demo.isOpen" md-direction="{{demo.selectedDirection}}"
+                                                       ng-class="demo.selectedMode">
+                                        <md-fab-trigger>
+                                            <md-button aria-label="menu" class="md-fab md-warn">
+                                                <md-icon md-font-icon="fa-bars" class="fa" aria-label="Menu"></md-icon>
+                                            </md-button>
+                                        </md-fab-trigger>
 
-          <div class="select">
-            <label for="audioSource">Audio input source: </label><select id="audioSource"></select>
-          </div>
-
-          <div class="select">
-            <label for="audioOutput">Audio output destination: </label><select id="audioOutput"></select>
-          </div>
-
-          <div class="select">
-            <label for="videoSource">Video source: </label><select id="videoSource"></select>
-          </div>
-
-          <video id="videoSetup" autoplay></video>
-
-          <p class="small"><b>Note:</b> If you hear a reverb sound your microphone is picking up the output of your speakers/headset, lower the volume and/or move the microphone further away from your speakers/headset.</p>        
+                                        <md-fab-actions>
+                                            <md-button aria-label="Settings" class="md-fab md-raised md-mini">
+                                                <md-icon md-font-icon="fa-cog" class="fa" aria-label="Settings" onclick="showDialog(true);"></md-icon>
+                                            </md-button>
+                                            <md-button aria-label="Download" class="md-fab md-raised md-mini">
+                                                <md-icon md-font-icon="fa-cloud-download" class="fa" " aria-label="Download" onclick="download();"></md-icon>
+                                            </md-button>
+                                        </md-fab-actions>
+                                    </md-fab-speed-dial>
+                                </div>
+                            </md-content>
+                        </div>
+                    </div>
+                </md-card>
+            </div>
         </div>
-        <button id="exit" onclick="showDialog(false)">Close</button>  
-      </dialog>  
-  </div>
-</div>   
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+        <div>
+            <dialog id="settingsForm">
+                <div class="container">
+                    <h1>Setup your devices</h1>
 
-  <!-- Angular Material Library -->
-  <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
-  <!-- include adapter for srcObject shim -->
-  <script src="js/adapter-latest.js"></script>
-  <script src="js/main.js"></script>
-  <!-- <script src="js/ga.js"></script> -->
+                    <div class="select">
+                        <label for="audioSource">Audio input source: </label><select id="audioSource"></select>
+                    </div>
+
+                    <div class="select">
+                        <label for="audioOutput">Audio output destination: </label><select id="audioOutput"></select>
+                    </div>
+
+                    <div class="select">
+                        <label for="videoSource">Video source: </label><select id="videoSource"></select>
+                    </div>
+
+                    <video id="videoSetup" autoplay></video>
+
+                    <p class="small"><b>Note:</b> If you hear a reverb sound your microphone is picking up the output of your speakers/headset, lower the volume and/or move the microphone further away from your speakers/headset.</p>
+                </div>
+                <button id="exit" onclick="showDialog(false)">Close</button>
+            </dialog>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+
+    <!-- Angular Material Library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+    <!-- include adapter for srcObject shim -->
+    <script src="js/adapter-latest.js"></script>
+    <script src="js/main.js"></script>
+    <!-- <script src="js/ga.js"></script> -->
 
 </body>
 </html>

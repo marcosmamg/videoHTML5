@@ -20,6 +20,12 @@ margin: 0 auto 0 auto;
 max-width: 40em;
 padding: 1em 1.5em 1.3em 1.5em;
 position: relative;
+text-align: justify;
+}
+
+.video_wrapper {
+display: inline-block;
+position: relative;
 }
 
 #video_overlays {
@@ -31,13 +37,11 @@ background-color:#000;
 z-index:300000;
 }
 
-#video_overlays img{
-position: absolute;
-margin-left: auto;
-margin-right: auto;
-height: 10em;
-width: 10em;
+#video_overlays img {
+height: 25%;
+width: 20%;
 margin: 0 auto 0 auto;
+display: block;
 }
 
 .previewContainer {
