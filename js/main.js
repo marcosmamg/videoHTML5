@@ -8,6 +8,7 @@ var mediaRecorder;
 var recordedBlobs;
 var sourceBuffer;
 var recording = false;
+var timeRecorded = 0;
 
 var videoElement = document.querySelector('#videoSetup');
 var audioInputSelect = document.querySelector('select#audioSource');
@@ -18,10 +19,8 @@ var selectors = [audioInputSelect, audioOutputSelect, videoSelect];
 var gumVideo = document.querySelector('video#gum');
 var recordedVideo = document.querySelector('video#recorded');
 
-gumVideo.onclick = toggleRecording;
-
 // window.isSecureContext could be used for Chrome
-var isSecureOrigin = true; //location.protocol === 'https:' ||
+var isSecureOrigin = location.protocol === 'https:' ||
 location.hostname === 'localhost';
 if (!isSecureOrigin) {
   alert('getUserMedia() must be run from a secure origin: HTTPS or localhost.' +
@@ -34,16 +33,6 @@ var constraints = {
   video: true
 };
 
-(function() { 
-
-  angular.module('fabButton', ['ngMaterial'])
-    .controller('fabCtrl', function() {      
-      this.isOpen = false;      
-      this.selectedMode = 'md-fling';      
-      this.selectedDirection = 'down';
-    });
-})();
-
 function handleSuccess(stream) {  
   console.log('getUserMedia() got stream: ', stream);
   window.stream = stream;
@@ -55,15 +44,25 @@ function handleSuccess(stream) {
 }
 
 function handleError(error) {
-  console.log('navigator.getUserMedia error: ', error);
+  alert("it doesnt work here handleError");
 }
 
-navigator.mediaDevices.getUserMedia(constraints).
+function fallback(e) {
+  alert("it doesnt work here Fallback");
+}
+
+if (!navigator.getUserMedia) {
+  fallback();
+} else {
+  navigator.mediaDevices.getUserMedia(constraints).
     then(handleSuccess).catch(handleError);
+}
+
 
 function handleSourceOpen(event) {
   console.log('MediaSource opened');
   sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8"');
+  document.getElementById("closesVideoRecorder").style.display = "none";
   console.log('Source buffer: ', sourceBuffer);
 }
 
@@ -88,9 +87,11 @@ function toggleRecording() {
     recording = true;   
     recordedVideo.pause();
     startRecording();
+    document.getElementById("recorderButton").style.backgroundColor = "red";
   } else {
     recording = false;   
     stopRecording();     
+    document.getElementById("recorderButton").style.backgroundColor = "";
   }
 }
 
@@ -126,12 +127,10 @@ function startRecording() {
 
 function stopRecording() {
   mediaRecorder.stop();
-  document.getElementById("recorded").style.display = 'block';
+  hideVideoRecorder();
   play();
   console.log('Recorded Blobs: ', recordedBlobs);
   recordedVideo.controls = true;
-  document.getElementById("video_overlays").style.display = "block";
-  
 }
 
 function play() {
@@ -154,118 +153,17 @@ function download() {
   }, 100);
 }
 
-function hide(){
-  var overlay = document.getElementById("video_overlays")
-  document.getElementById("video_overlays").style.display = "none";
-  toggleRecording();
+function hideVideoRecorder(){
+  document.getElementById("recorderButton").style.display = "none";
+  document.getElementById("closesVideoRecorder").style.display = "block";
+  gumVideo.style.display = "none";
+  recordedVideo.style.display = "block";
+  
 }
 
-
-function showDialog(isVisible) {  
-    var dialog = document.getElementById('settingsForm');  
-    if (isVisible){
-      dialog.showModal();
-      videoElement.muted = false;
-      navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
-      start();
-    } else{
-      videoElement.muted = true;
-      dialog.close(); 
-    };
-}
-
-function gotDevices(deviceInfos) {
-  // Handles being called several times to update labels. Preserve values.
-  var values = selectors.map(function(select) {
-    return select.value;
-  });
-  selectors.forEach(function(select) {
-    while (select.firstChild) {
-      select.removeChild(select.firstChild);
-    }
-  });
-  for (var i = 0; i !== deviceInfos.length; ++i) {
-    var deviceInfo = deviceInfos[i];
-    var option = document.createElement('option');
-    option.value = deviceInfo.deviceId;
-    if (deviceInfo.kind === 'audioinput') {
-      option.text = deviceInfo.label ||
-          'microphone ' + (audioInputSelect.length + 1);
-      audioInputSelect.appendChild(option);
-    } else if (deviceInfo.kind === 'audiooutput') {
-      option.text = deviceInfo.label || 'speaker ' +
-          (audioOutputSelect.length + 1);
-      audioOutputSelect.appendChild(option);
-    } else if (deviceInfo.kind === 'videoinput') {
-      option.text = deviceInfo.label || 'camera ' + (videoSelect.length + 1);
-      videoSelect.appendChild(option);
-    } else {
-      console.log('Some other kind of source/device: ', deviceInfo);
-    }
-  }
-  selectors.forEach(function(select, selectorIndex) {
-    if (Array.prototype.slice.call(select.childNodes).some(function(n) {
-      return n.value === values[selectorIndex];
-    })) {
-      select.value = values[selectorIndex];
-    }
-  });
-}
-
-// Attach audio output device to video element using device/sink ID.
-function attachSinkId(element, sinkId) {
-  if (typeof element.sinkId !== 'undefined') {
-    element.setSinkId(sinkId)
-    .then(function() {
-      console.log('Success, audio output device attached: ' + sinkId);
-    })
-    .catch(function(error) {
-      var errorMessage = error;
-      if (error.name === 'SecurityError') {
-        errorMessage = 'You need to use HTTPS for selecting audio output ' +
-            'device: ' + error;
-      }
-      console.error(errorMessage);
-      // Jump back to first output device in the list as it's the default.
-      audioOutputSelect.selectedIndex = 0;
-    });
-  } else {
-    console.warn('Browser does not support output device selection.');
-  }
-}
-
-function changeAudioDestination() {
-  var audioDestination = audioOutputSelect.value;
-  attachSinkId(videoElement, audioDestination);
-}
-
-function gotStream(stream) {
-  window.stream = stream; // make stream available to console
-  videoElement.srcObject = stream;
-  // Refresh button list in case labels have become available
-  return navigator.mediaDevices.enumerateDevices();
-}
-
-function start() {
-  // if (window.stream) {
-  //   window.stream.getTracks().forEach(function(track) {
-  //     track.stop();
-  //   });
-  // }
-  var audioSource = audioInputSelect.value;
-  var videoSource = videoSelect.value;
-  var constraints = {
-    audio: {deviceId: audioSource ? {exact: audioSource} : undefined},
-    video: {deviceId: videoSource ? {exact: videoSource} : undefined}
-  };
-  navigator.mediaDevices.getUserMedia(constraints).
-      then(gotStream).then(gotDevices).catch(handleError);
-}
-
-audioInputSelect.onchange = start;
-audioOutputSelect.onchange = changeAudioDestination;
-videoSelect.onchange = start;
-
-function handleError(error) {
-  console.log('navigator.getUserMedia error: ', error);
+function showVideoRecorder(){
+  recordedVideo.style.display = "none";
+  document.getElementById("closesVideoRecorder").style.display = "none";
+  document.getElementById("recorderButton").style.display = "block";
+  gumVideo.style.display = "block";
 }
