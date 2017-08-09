@@ -1,14 +1,25 @@
 'use strict';
 
-/* globals MediaRecorder */
+// window.isSecureContext could be used for Chrome
+var isSecureOrigin = location.protocol === 'https:' ||
+location.hostname === 'localhost';
+if (!isSecureOrigin) {
+  alert('getUserMedia() must be run from a secure origin: HTTPS or localhost.' +
+    '\n\nChanging protocol to HTTPS');
+  location.protocol = 'HTTPS';
+}
 
-var mediaSource = new MediaSource();
-mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
+var mediaSource;
 var mediaRecorder;
 var recordedBlobs;
 var sourceBuffer;
 var recording = false;
 var timeRecorded = 0;
+
+var constraints = {
+  audio: true,
+  video: true
+};
 
 var videoElement = document.querySelector('#videoSetup');
 var audioInputSelect = document.querySelector('select#audioSource');
@@ -19,28 +30,17 @@ var selectors = [audioInputSelect, audioOutputSelect, videoSelect];
 var gumVideo = document.querySelector('video#gum');
 var recordedVideo = document.querySelector('video#recorded');
 
-// window.isSecureContext could be used for Chrome
-var isSecureOrigin = location.protocol === 'https:' ||
-location.hostname === 'localhost';
-if (!isSecureOrigin) {
-  alert('getUserMedia() must be run from a secure origin: HTTPS or localhost.' +
-    '\n\nChanging protocol to HTTPS');
-  location.protocol = 'HTTPS';
-}
-
-var constraints = {
-  audio: true,
-  video: true
-};
-
 function handleSuccess(stream) {  
-  console.log('getUserMedia() got stream: ', stream);
   window.stream = stream;
   if (window.URL) {
     gumVideo.src = window.URL.createObjectURL(stream);
   } else {
     gumVideo.src = stream;
   }
+  
+  mediaSource = new MediaSource();
+  mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
+  
 }
 
 function handleError(error) {
@@ -49,6 +49,15 @@ function handleError(error) {
 
 function fallback(e) {
   alert("it doesnt work here Fallback");
+  document.getElementById("defaultVideo").style.display="block";
+}
+
+function handleSourceOpen(event) {
+  document.writeln('SSSSSS');
+  console.log('MediaSource opened');
+  sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8"');
+  document.getElementById("closesVideoRecorder").style.display = "none";
+  console.log('Source buffer: ', sourceBuffer);
 }
 
 if (!navigator.getUserMedia) {
@@ -58,13 +67,7 @@ if (!navigator.getUserMedia) {
     then(handleSuccess).catch(handleError);
 }
 
-
-function handleSourceOpen(event) {
-  console.log('MediaSource opened');
-  sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8"');
-  document.getElementById("closesVideoRecorder").style.display = "none";
-  console.log('Source buffer: ', sourceBuffer);
-}
+/* globals MediaRecorder */
 
 recordedVideo.addEventListener('error', function(ev) {
   console.error('MediaRecording.recordedMedia.error()');
