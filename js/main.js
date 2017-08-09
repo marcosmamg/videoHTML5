@@ -9,12 +9,14 @@ if (!isSecureOrigin) {
   location.protocol = 'HTTPS';
 }
 
+/* globals MediaRecorder */
 var mediaSource;
 var mediaRecorder;
 var recordedBlobs;
 var sourceBuffer;
 var recording = false;
 var timeRecorded = 0;
+var intervalTimer;
 
 var constraints = {
   audio: true,
@@ -44,11 +46,11 @@ function handleSuccess(stream) {
 }
 
 function handleError(error) {
-  alert("it doesnt work here handleError");
+  fallback(error);
 }
 
 function fallback(e) {
-  alert("it doesnt work here Fallback");
+  document.getElementById("videoContainer").style.display="none";
   document.getElementById("defaultVideo").style.display="block";
 }
 
@@ -64,10 +66,8 @@ if (!navigator.getUserMedia) {
   fallback();
 } else {
   navigator.mediaDevices.getUserMedia(constraints).
-    then(handleSuccess).catch(handleError);
+    then(handleSuccess).catch(fallback);
 }
-
-/* globals MediaRecorder */
 
 recordedVideo.addEventListener('error', function(ev) {
   console.error('MediaRecording.recordedMedia.error()');
@@ -126,6 +126,20 @@ function startRecording() {
   mediaRecorder.ondataavailable = handleDataAvailable;
   mediaRecorder.start(10); // collect 10ms of data
   console.log('MediaRecorder started', mediaRecorder);
+  
+  var now = new Date();
+  timeRecorded = now.getTime();
+  
+  intervalTimer = setInterval(function(){ 
+    var now = new Date();
+    var diff = now - timeRecorded;
+    var secs = parseInt(diff/1000, 10);
+    var mins = parseInt(secs/60, 10);
+    secs = parseInt((diff - mins * 60)/1000, 10)
+    
+    document.getElementById("timer").innerHTML = mins + ":" + secs;
+  }, 1000);
+  document.getElementById("timer").style.display = "block";
 }
 
 function stopRecording() {
@@ -134,6 +148,9 @@ function stopRecording() {
   play();
   console.log('Recorded Blobs: ', recordedBlobs);
   recordedVideo.controls = true;
+  timeRecorded = 0;
+  clearInterval(intervalTimer);
+  document.getElementById("timer").style.display = "none";
 }
 
 function play() {
@@ -161,7 +178,6 @@ function hideVideoRecorder(){
   document.getElementById("closesVideoRecorder").style.display = "block";
   gumVideo.style.display = "none";
   recordedVideo.style.display = "block";
-  
 }
 
 function showVideoRecorder(){

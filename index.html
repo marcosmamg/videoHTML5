@@ -15,13 +15,17 @@
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <div>
+    <div id="videoContainer">
+        <div class="hidden" id="timer"></div>
     	<i id = "closesVideoRecorder" onclick = "showVideoRecorder();" class="fa fa-window-close fa-3x hidden" aria-hidden="true"></i>
     	<video id="gum" autoplay muted></video>
     	<video controls id="recorded" autoplay class="previewContainer hidden"></video>
     	<p onclick = "toggleRecording();" id="recorderButton"></p>
     </div>
-    <input class="hidden" id="defaultVideo" type="file" accept="image/*;capture=camera">
+    <div class="hidden" id="defaultVideo" >
+        <p>Please upload a video file</p>
+        <input type="file" accept="video/*;capture=camcorder">    
+    </div>
     
     <!-- include adapter for srcObject shim -->
     <script src="js/adapter-latest.js"></script>

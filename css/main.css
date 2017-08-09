@@ -26,6 +26,19 @@
     margin-right: auto;
 }
 
+#timer {
+    background-color: #f00;
+    color: #fff;
+    height:1.1em;
+    width:10em;
+    position: absolute;
+    left: 0; 
+    right: 0; 
+    margin-left: auto; 
+    margin-right: auto;
+    text-align: center;
+}
+
 html {
     /* avoid annoying page width change when moving from the home page */
     overflow-y: scroll;
