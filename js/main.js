@@ -17,10 +17,11 @@ var sourceBuffer;
 var recording = false;
 var timeRecorded = 0;
 var intervalTimer;
+var recordedSize = 0;
 
 var constraints = {
   audio: true,
-  video: true
+  video: {width: {exact: 720}, height: {exact: 480}}
 };
 
 var videoElement = document.querySelector('#videoSetup');
@@ -78,6 +79,7 @@ recordedVideo.addEventListener('error', function(ev) {
 function handleDataAvailable(event) {
   if (event.data && event.data.size > 0) {
     recordedBlobs.push(event.data);
+    recordedSize += event.data.size;
   }
 }
 
@@ -88,7 +90,7 @@ function handleStop(event) {
 function toggleRecording() {
   if (!recording) {    
     recording = true;   
-    recordedVideo.pause();
+    //recordedVideo.pause();
     startRecording();
     document.getElementById("recorderButton").style.backgroundColor = "red";
   } else {
@@ -100,6 +102,7 @@ function toggleRecording() {
 
 function startRecording() {
   recordedBlobs = [];
+  recordedSize = 0;
   var options = {mimeType: 'video/webm;codecs=vp9'};
   if (!MediaRecorder.isTypeSupported(options.mimeType)) {
     console.log(options.mimeType + ' is not Supported');
@@ -135,9 +138,13 @@ function startRecording() {
     var diff = now - timeRecorded;
     var secs = parseInt(diff/1000, 10);
     var mins = parseInt(secs/60, 10);
-    secs = parseInt((diff - mins * 60)/1000, 10)
-    
+    secs = parseInt((diff - mins * 60*1000)/1000, 10)
+  
     document.getElementById("timer").innerHTML = mins + ":" + secs;
+    if(recordedSize >= 29360128) /* Aprox 14 MB*/
+    {
+      stopRecording(); 
+    }
   }, 1000);
   document.getElementById("timer").style.display = "block";
 }
@@ -185,4 +192,5 @@ function showVideoRecorder(){
   document.getElementById("closesVideoRecorder").style.display = "none";
   document.getElementById("recorderButton").style.display = "block";
   gumVideo.style.display = "block";
+  recordedVideo.pause();
 }
