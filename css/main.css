@@ -12,7 +12,7 @@
 }
 
 #recorderButton {
-    
+    /*
     border: 5px solid #FFF;
     height:5em;
     width:5em;
@@ -24,6 +24,49 @@
     right: 0; 
     margin-left: auto; 
     margin-right: auto;
+    */
+}
+
+.videoControls 
+{
+    height:5em;
+    width:100%;
+    position: absolute;
+    bottom: 0px;
+    left: 0; 
+    right: 0; 
+    margin-left: auto; 
+    margin-right: auto;
+}
+
+.recorder 
+{
+    border: 5px solid #FFF;
+    height: 5em;
+    width: 5em;   
+    -webkit-border-radius:3em;
+    -moz-border-radius:3em;
+    border-radius: 3em;
+    
+    position: absolute;
+    bottom: 0px;
+    left: 0; 
+    right: 0; 
+    margin-left: auto; 
+    margin-right: auto;
+}
+
+.uploadFile
+{
+    position: absolute;
+    right: 35%; 
+}
+
+.requestAuthorization
+{
+    position: absolute;
+    top: 50px;
+    right: 35%; 
 }
 
 #timer {

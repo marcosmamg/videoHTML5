@@ -1,5 +1,8 @@
 'use strict';
 
+if (!navigator.getUserMedia) {
+    fallback();
+}
 // window.isSecureContext could be used for Chrome
 var isSecureOrigin = location.protocol === 'https:' ||
 location.hostname === 'localhost';
@@ -9,9 +12,31 @@ if (!isSecureOrigin) {
   location.protocol = 'HTTPS';
 }
 
+// Support
+var URL = window.URL || window.webkitURL
+
 // Global variables for GoogleAuth object, auth status.
 var GoogleAuth;
-var selectedFile;
+var uploadedFile;
+var acceptedUploadFileTypes = ['video/mp4', 
+                               'video/3gpp', 
+                               'video/quicktime', 
+                               'video/webm', 
+                               'video/ogg', 
+                               'video/avi', 
+                               'video/mpeg', 
+                               'video/x-mpeg']
+                               
+var acceptedMimeCodecs = ['video/mp4;codecs=vp9',
+                          'video/mp4;codecs=vp8',
+                          'video/mp4']
+                               
+var videoSettings = {
+  'vga' : { audio: true, video: {width: {exact: 320}, height: {exact: 240} } },
+  'qvga' : { audio: true, video: {width: {exact: 640}, height: {exact: 480} } },
+  'hd' : { audio: true, video: {width: {exact: 1280}, height: {exact: 720} } },
+  'full-hd' : { audio: true, video: {width: {exact: 1920}, height: {exact: 1080} } }
+}
 
 /* globals MediaRecorder */
 var mediaSource;
@@ -26,24 +51,11 @@ var recordedSize = 0;
 var gumVideo = document.querySelector('video#gum');
 var recordedVideo = document.querySelector('video#recorded');
 var maxTime = 0;
-// Call handleAuthClick function when user clicks on "Authorize" button.
-  $('#execute-request-button').click(function() {
-    handleAuthClick(event);
-  }); 
-  $("#select-file-button").click(function () {
-    $("#select-file").click();
-  });
-  $("#upload-file-button").click(function () {
-    defineRequest();
-  });
-  $("#select-file").bind("change", function () {
-    selectedFile = $("#select-file").prop("files")[0];
-  });
 
 function handleSuccess(stream) {  
   window.stream = stream;
-  if (window.URL) {
-    gumVideo.src = window.URL.createObjectURL(stream);
+  if (URL) {
+    gumVideo.src = URL.createObjectURL(stream);
   } else {
     gumVideo.src = stream;
   }
@@ -54,79 +66,73 @@ function handleSuccess(stream) {
 }
 
 function handleError(error) {
-  fallback(error);
+  fallback();
 }
 
 function fallback(e) {
+  document.getElementById("videoSettings").style.display="none";
   document.getElementById("videoContainer").style.display="none";
   document.getElementById("defaultVideo").style.display="block";
 }
 
 function handleSourceOpen(event) {
-  document.writeln('SSSSSS');
-  console.log('MediaSource opened');
   sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="vp9"');
   document.getElementById("closesVideoRecorder").style.display = "none";
-  console.log('Source buffer: ', sourceBuffer);
 }
 
 ///////////////
 var stream;
 
-var vgaButton = document.querySelector('#vga');
-var qvgaButton = document.querySelector('#qvga');
-var hdButton = document.querySelector('#hd');
-var fullHdButton = document.querySelector('#full-hd');
-var qvgaConstraints = {
-  audio: true,
-  video: {width: {exact: 320}, height: {exact: 240}}
-};
+// Call handleAuthClick function when user clicks on "Authorize" button.
+  $('button.requestAuthorization').on("click", function(e) {
+    handleAuthClick(event);
+  }); 
+  
+  $("#select-file-button").on("click", function (e) {
+    $("#select-file").click();
+  });
 
-var vgaConstraints = {
-  audio: true,
-  video: {width: {exact: 640}, height: {exact: 480}}
-};
+  $(".uploadFile").on("click", function (e) {
+    defineRequest();
+  });
+  
+  $("#select-file").on("change", function (e) {
+    uploadedFile = $("#select-file").prop("files")[0];
+    
+    if(acceptedUploadFileTypes.indexOf(uploadedFile.type)==-1)
+    {
+      alert("File format not supported : '" + uploadedFile.type + "'");
+    } 
+    else 
+    {
+      if(URL)
+      {
+        $("#previewUploadedVideo").css("display","block").attr("src", URL.createObjectURL(uploadedFile));
+      }
+    }
+  });
 
-var hdConstraints = {
-  audio: true,
-  video: {width: {exact: 1280}, height: {exact: 720}}
-};
+  $(".displayResolution").on("click", function(e) { 
+    e.preventDefault(); 
+    e.stopPropagation(); 
+    
+    getMedia(videoSettings[$(e.target).data("name")]);
 
-var fullHdConstraints = {
-  audio: true,
-  video: {width: {exact: 1920}, height: {exact: 1080}}
-};
+  } );
 
-vgaButton.onclick = function() {
-  getMedia(vgaConstraints);
-};
-
-qvgaButton.onclick = function() {
-  getMedia(qvgaConstraints);
-};
-
-hdButton.onclick = function() {
-  getMedia(hdConstraints);
-};
-
-fullHdButton.onclick = function() {
-  getMedia(fullHdConstraints);
-};
-
-function getMedia(constraints) {
-  if (stream) {
-    stream.getTracks().forEach(function(track) {
-      track.stop();
-    });
-  }
-  if (!navigator.getUserMedia) {
-    fallback();
-  } else {
+  function getMedia(constraints) {
+    if (stream) {
+      stream.getTracks().forEach(function(track) {
+        track.stop();
+      });
+    }
+  
     navigator.mediaDevices.getUserMedia(constraints).
-      then(handleSuccess).catch(fallback);
-    document.getElementById("recorderButton").style.display = "block";
-  }
-};
+              then(handleSuccess).
+              catch(fallback);
+  
+    $("div.videoControls").removeClass("hidden");
+  };
 
 //////////////
 recordedVideo.addEventListener('error', function(ev) {
@@ -146,11 +152,63 @@ function handleStop(event) {
   console.log('Recorder stopped: ', event);
 }
 
+function formatTime(time) {
+  if(time < 10)
+  {
+    return "0" + time;
+  }
+  return ""+time;
+}
+
+function updateTimer() {
+  var now = new Date();
+  var diff = now - timeRecorded;
+  var secs = parseInt(diff/1000, 10);
+  var mins = parseInt(secs/60, 10);
+  secs = parseInt((diff - mins * 60000)/1000, 10)
+    
+  $("#timer").html(formatTime(mins) + ":" + formatTime(secs));
+  if(mins >= maxTime)
+  {
+    stopRecording(); 
+  }
+}
+
+function isReadyToRecord()
+{
+  maxTime = document.getElementById("maxTimeToRecord").value;
+  if (maxTime == "")
+  {
+    alert("Select max time to record");
+    return false;
+  }
+  return true;
+}
+
+function getMimeCodec()
+{
+  var mimeCodec =  {mimeType: ''};
+  for(var i=0; i < acceptedMimeCodecs.length && mimeCodec.mimeType.length == 0; i++)
+  {
+    if (MediaRecorder.isTypeSupported(acceptedMimeCodecs[i])) 
+    {
+      mimeCodec.mimeType = acceptedMimeCodecs[i];
+    }
+  }
+  
+  return mimeCodec;
+}
+
 function toggleRecording() {
-  if (!recording) {    
-    //recordedVideo.pause();
-    startRecording();
-  } else {
+  if (!recording) {
+    if(isReadyToRecord())
+    {
+      //recordedVideo.pause();
+      startRecording();            
+    }
+  } 
+  else 
+  {
     stopRecording();     
   }
 }
@@ -158,69 +216,43 @@ function toggleRecording() {
 function startRecording() {
   recordedBlobs = [];
   recordedSize = 0;
-  var options = {mimeType: 'video/mp4;codecs=vp9'};
-  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-    console.log(options.mimeType + ' is not Supported');
-    options = {mimeType: 'video/mp4;codecs=vp8'};
-    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-      console.log(options.mimeType + ' is not Supported');
-      options = {mimeType: 'video/mp4'};
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        console.log(options.mimeType + ' is not Supported');
-        options = {mimeType: ''};
-      }
-    }
+  
+  var options = getMimeCodec();
+  
+  try {
+    mediaRecorder = new MediaRecorder(window.stream, options);
+  } catch (e) {
+    console.error('Exception while creating MediaRecorder: ' + e);
+    alert('Exception while creating MediaRecorder: '
+      + e + '. mimeType: ' + options.mimeType);
+    return;
   }
-  maxTime = document.getElementById("maxTimeToRecord").value;
-  if (maxTime != ""){
-    try {
-      mediaRecorder = new MediaRecorder(window.stream, options);
-    } catch (e) {
-      console.error('Exception while creating MediaRecorder: ' + e);
-      alert('Exception while creating MediaRecorder: '
-        + e + '. mimeType: ' + options.mimeType);
-      return;
-    }
-    console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-    mediaRecorder.onstop = handleStop;
-    mediaRecorder.ondataavailable = handleDataAvailable;
-    mediaRecorder.start(10); // collect 10ms of data
-    console.log('MediaRecorder started', mediaRecorder);
-    document.getElementById("recorderButton").style.backgroundColor = "red";
-    document.getElementById("buttons").style.display = "none";
-    var now = new Date();
-    timeRecorded = now.getTime();
-    recording = true;   
-    intervalTimer = setInterval(function(){ 
-      var now = new Date();
-      var diff = now - timeRecorded;
-      var secs = parseInt(diff/1000, 10);
-      var mins = parseInt(secs/60, 10);
-      secs = parseInt((diff - mins * 60*1000)/1000, 10)
-    
-      document.getElementById("timer").innerHTML = mins + ":" + secs;
-      if(mins == maxTime) /* Aprox 14 MB*/
-      {
-        stopRecording(); 
-      }
-    }, 1000);
-    document.getElementById("timer").style.display = "block";
-  }else{
-    alert("Select max time to record");
-  };
+  
+  mediaRecorder.onstop = handleStop;
+  mediaRecorder.ondataavailable = handleDataAvailable;
+  mediaRecorder.start(10); // collect 10ms of data
+
+  document.getElementById("recorderButton").style.backgroundColor = "red";
+  document.getElementById("videoSettings").style.display = "none";
+  var now = new Date();
+  
+  timeRecorded = now.getTime();
+  recording = true;   
+  intervalTimer = setInterval(updateTimer, 1000);
+  document.getElementById("timer").style.display = "block";
 }
 
 function stopRecording() {
   mediaRecorder.stop();
   hideVideoRecorder();
   play();
-  console.log('Recorded Blobs: ', recordedBlobs);
+  
   recordedVideo.controls = true;
   timeRecorded = 0;
   clearInterval(intervalTimer);
   document.getElementById("timer").style.display = "none";
   document.getElementById("recorderButton").style.backgroundColor = "";
-  document.getElementById("buttons").style.display = "block";
+  document.getElementById("videoSettings").style.display = "block";
   recording = false;   
 }
 
@@ -231,44 +263,24 @@ function play() {
 
 function generateFile() {
   var blob = new Blob(recordedBlobs, {type: 'video/mp4'});
-  var file = new File([blob], 'filename.mp4', {
-        type: 'video/mp4'
-    });
+  var file = new File([blob], 'filename.mp4', { type: 'video/mp4' });
   selectedFile = file;
 }
 
 function hideVideoRecorder(){
-  document.getElementById("recorderButton").style.display = "none";
-  document.getElementById("closesVideoRecorder").style.display = "block";
+  $("div.videoControls").addClass("hidden");
+  $("#closesVideoRecorder").removeClass("hidden");
   gumVideo.style.display = "none";
   recordedVideo.style.display = "block";
 }
 
 function showVideoRecorder(){
+  $("#closesVideoRecorder").addClass("hidden");
+  $("div.videoControls").removeClass("hidden");
   recordedVideo.style.display = "none";
-  document.getElementById("closesVideoRecorder").style.display = "none";
-  document.getElementById("recorderButton").style.display = "block";
   gumVideo.style.display = "block";
   recordedVideo.pause();
 }
-
-
-/*(function localFileVideoPlayer() {
-	'use strict'
-  var URL = window.URL || window.webkitURL
-  
-  var playSelectedFile = function (event) {
-    var file = selectedFile;//this.files[0]
-    var type = file.type
-    var videoNode = document.querySelector('video#previewUploadedVideo')
-
-    var fileURL = URL.createObjectURL(file)
-    videoNode.src = fileURL
-  }
-  var inputNode = document.querySelector('input')
-  inputNode.addEventListener('change', playSelectedFile, false)
-})()*/
-
 
  /***** START BOILERPLATE CODE: Load client library, authorize user. *****/
 
@@ -310,7 +322,7 @@ function showVideoRecorder(){
     var isAuthorized = user.hasGrantedScopes('https://www.googleapis.com/auth/youtube.force-ssl https://www.googleapis.com/auth/youtubepartner');
     // Toggle button text and displayed statement based on current auth status.
     if (isAuthorized) {
-      document.getElementById("execute-request-button").style.display="none";
+      $(".requestAuthorization").css("display", "none");
       //defineRequest();
     }
   }
