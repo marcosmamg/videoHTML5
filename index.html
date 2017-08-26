@@ -15,39 +15,38 @@
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-     <div id="videoSettings">
+    <div class="x" style="float: left;">
+        <p>Please upload a video file</p>
+        <button id="select-file-button">Select file</button>
+        <input id="select-file" type="file" accept="video/*" class="hidden">
+        <br />        
+    </div>
+    <div id="videoSettings">
       <button class="displayResolution" data-name="qvga">QVGA</button>
       <button class="displayResolution" data-name="vga">VGA</button>
       <button class="displayResolution" data-name="hd">HD</button>
       <button class="displayResolution" data-name="full-hd">Full HD</button>
       <label>Max time in minutes : <input id= "maxTimeToRecord" type="number" name="quantity" min="1" max="5" value="2"></label>
     </div>
-    <div id="videoContainer">
-        <div class="hidden" id="timer"></div>
-    	<i id = "closesVideoRecorder" onclick = "showVideoRecorder();" class="fa fa-window-close fa-3x hidden" aria-hidden="true"></i>
-    	<video id="gum" autoplay muted></video>
-    	<video controls id="recorded" autoplay preload class="previewContainer hidden"></video>
-    	<div class="videoControls hidden">
-    	    <p class="recorder" onclick = "toggleRecording();" id="recorderButton"></p>
-    	    <button class="requestAuthorization">Authorize</button>
-    	    <button class="uploadFile">Upload file</button>
+    <div class="videoRecorder hidden">
+        <div class="header">
+            <div class="timer hidden"></div>
+        </div>
+    	<video class="recorder" autoplay muted></video>
+    	<div class="controls">
+    	    <p class="recorderButton"></p>    
     	</div>
     </div>
-    <div id="defaultVideo" class="hidden" >
-        <p>Please upload a video file</p>
-        <button class="requestAuthorization">Authorize</button>
-        <button id="select-file-button">Select file</button>
-        <input id="select-file" type="file" accept="video/*" class="hidden">
+    <div class="videoPreview">
+        <div class="header">
+            <i class="close" class="fa fa-window-close fa-3x" aria-hidden="true"></i>
+        </div>
+        <video id="previewUploadedVideo" class="preview" controls class="hidden"></video>
         <button class="uploadFile">Upload file</button>
-        <video id="previewUploadedVideo" controls class="hidden"></video>
     </div>
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="js/main.js"></script>
-    <!-- script async defer src="https://apis.google.com/js/api.js" 
-        onload="this.onload=function(){};handleClientLoad()" 
-        onreadystatechange="if (this.readyState === 'complete') this.onload()" -->
-    <!-- /script -->
     <!-- include adapter for srcObject shim -->
     <script src="js/adapter-latest.js"></script>
     
