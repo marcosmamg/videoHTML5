@@ -15,18 +15,18 @@
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <div class="x" style="float: left;">
+    <div class="fileUpload" style="float: left;">
         <p>Please upload a video file</p>
-        <button id="select-file-button">Select file</button>
+        <button id="select-file-button" class="uploadButton">Select file</button>
         <input id="select-file" type="file" accept="video/*" class="hidden">
         <br />        
     </div>
-    <div id="videoSettings">
+    <div class="videoSettings">
       <button class="displayResolution" data-name="qvga">QVGA</button>
       <button class="displayResolution" data-name="vga">VGA</button>
       <button class="displayResolution" data-name="hd">HD</button>
       <button class="displayResolution" data-name="full-hd">Full HD</button>
-      <label>Max time in minutes : <input id= "maxTimeToRecord" type="number" name="quantity" min="1" max="5" value="2"></label>
+      <label>Max time in minutes : <input class="maxDuration" type="number" name="quantity" min="1" max="5" value="2"></label>
     </div>
     <div class="videoRecorder hidden">
         <div class="header">
@@ -37,11 +37,11 @@
     	    <p class="recorderButton"></p>    
     	</div>
     </div>
-    <div class="videoPreview">
+    <div class="videoPreview hidden">
         <div class="header">
-            <i class="close" class="fa fa-window-close fa-3x" aria-hidden="true"></i>
+            <i class="close fa fa-window-close fa-3x" aria-hidden="true"></i>
         </div>
-        <video id="previewUploadedVideo" class="preview" controls class="hidden"></video>
+        <video id="previewUploadedVideo" class="preview" controls></video>
         <button class="uploadFile">Upload file</button>
     </div>
     
