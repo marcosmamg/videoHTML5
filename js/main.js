@@ -313,3 +313,54 @@ VideoPlayer.prototype.showPreview = function() {
 var videoPlayer = new VideoPlayer($(".videoRecorder"), 
                                   $(".videoPreview"), 
                                   $("#videoSettings"));
+
+
+'use strict';
+var app = angular.module('fileUpload', ['ngFileUpload']);
+app.controller('MyCtrl', ['$scope', '$http', '$timeout', '$compile', 'Upload', function ($scope, $http, $timeout, $compile, Upload) {
+  
+  function generateFile () {
+    var blob = new Blob(recordedBlobs, {type: 'video/mp4'});
+    var file = new File([blob], 'filename.mp4', {
+        type: 'video/mp4'
+    });
+    console.log(file);
+    return file;
+  };
+  
+  $scope.uploadS3 = function() {
+    var file = generateFile();
+    file.upload = Upload.upload({
+      url: 'https://videowisp.s3.amazonaws.com/',
+      method: 'POST',
+      data: {
+        key: file.name,
+        acl: 'public-read',
+        policy: 'eyAiZXhwaXJhdGlvbiI6ICIyMDIwLTEyLTMwVDEyOjAwOjAwLjAwMFoiLAogICJjb25kaXRpb25zIjogWwogICAgeyJidWNrZXQiOiAidmlkZW93aXNwIn0sCiAgICBbInN0YXJ0cy13aXRoIiwgIiRrZXkiLCAiIl0sCiAgICB7ImFjbCI6ICJwdWJsaWMtcmVhZCJ9LCAgICAKICAgIFsic3RhcnRzLXdpdGgiLCAiJENvbnRlbnQtVHlwZSIsICIiXSwKICAgIHsieC1hbXotbWV0YS11dWlkIjogIjE0MzY1MTIzNjUxMjc0In0sCiAgICB7IngtYW16LXNlcnZlci1zaWRlLWVuY3J5cHRpb24iOiAiQUVTMjU2In0sCiAgICBbInN0YXJ0cy13aXRoIiwgIiR4LWFtei1tZXRhLXRhZyIsICIiXSwKICAgIHsieC1hbXotY3JlZGVudGlhbCI6ICJBS0lBSjJNRTVRUFBJSDRSNktTQS8yMDE3MDgzMS91cy1lYXN0LTIvczMvYXdzNF9yZXF1ZXN0In0sCiAgICB7IngtYW16LWFsZ29yaXRobSI6ICJBV1M0LUhNQUMtU0hBMjU2In0sCiAgICB7IngtYW16LWRhdGUiOiAiMjAxNzA4MzFUMDAwMDAwWiIgfQogIF0KfQ==',
+        'X-Amz-Signature': 'o7rU9oK3Js+3/YEmDPaJQzeJ36g=',
+        'X-Amz-Credential' : 'AKIAJ2ME5QPPIH4R6KSA/20170831/us-east-2/s3/aws4_request',
+        'X-Amz-Algorithm': 'AWS4-HMAC-SHA256',
+        'X-Amz-Date': '20170831T000000Z',
+        "Content-Type": '',
+        file: file,
+        filename: 'test.mp4',
+        file: file
+      }
+    });
+
+    file.upload.then(function (response) {
+      $timeout(function () {
+        file.result = response.data;
+        console.log(file.result);
+      });
+    }, function (response) {
+      if (response.status > 0)
+        $scope.errorMsg = response.status + ': ' + response.data;
+        console.log($scope.errorMsg);
+    });
+
+    file.upload.progress(function (evt) {
+      file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+    });
+  };
+}]);

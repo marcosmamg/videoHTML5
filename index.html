@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html>
-<head>
+<html ng-app="fileUpload">
+<head >
     <meta charset="utf-8">
     <meta name="description" content="Video feature for SmarthForms">
     <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1">
@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="css/main.css">
 </head>
-<body>
+<body ng-controller="MyCtrl">
     <div class="x" style="float: left;">
         <p>Please upload a video file</p>
         <button id="select-file-button">Select file</button>
@@ -42,9 +42,13 @@
             <i class="close" class="fa fa-window-close fa-3x" aria-hidden="true"></i>
         </div>
         <video id="previewUploadedVideo" class="preview" controls class="hidden"></video>
-        <button class="uploadFile">Upload file</button>
+        <button class="uploadFile" ng-click="uploadS3()">Upload file</button>
     </div>
     
+    
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.24/angular.js"></script>
+    <script src="js/ng-file-upload-shim.js"></script>
+    <script src="js/ng-file-upload.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="js/main.js"></script>
     <!-- include adapter for srcObject shim -->
